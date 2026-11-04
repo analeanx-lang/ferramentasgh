@@ -152,7 +152,8 @@ form.lanc input,form.lanc select{width:100%;text-transform:none;letter-spacing:0
 
 <script>
 const SHEET="14fHnr2jwnM1Wsffmh_H6M6SK5K9B-JF_tRmn9BXK8xE";
-const TABS={lanc:{sheet:"Lançamentos",range:"A2:I"},ferr:{sheet:"Ferramentas",range:"A2:J"},contas:{sheet:"Cartões e contas",range:"A2:F"}};
+const PUB="2PACX-1vSJd3Iq8cKiQ0STyfGHJeqhCy4-C2pGd7yqjpj0tg2B3PD55wW3W74N59OyceJAXjjAI5UhmSxQALJw";
+const TABS={lanc:0,ferr:1,contas:2};
 const MESES=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
 const $=id=>document.getElementById(id);
 const st={lanc:null,ferr:null,contas:null,filter:"ativas",mes:null};
@@ -271,9 +272,9 @@ function showErr(msg){const b=$("banner");b.hidden=false;b.className="banner err
 async function load(){
   try{
     const res=await Promise.all(Object.entries(TABS).map(async([k,t])=>{
-      const url=`https://docs.google.com/spreadsheets/d/${SHEET}/gviz/tq?tqx=out:csv&headers=0&sheet=${encodeURIComponent(t.sheet)}&range=${t.range}&_=${Date.now()}`;
+      const url=`https://docs.google.com/spreadsheets/d/e/${PUB}/pub?gid=${t}&single=true&output=csv&_=${Date.now()}`;
       const r=await fetch(url);if(!r.ok)throw new Error(r.status);const txt=await r.text();
-      if(txt.trim().startsWith("<"))throw new Error("html");return[k,csv(txt)]}));
+      if(txt.trim().startsWith("<"))throw new Error("html");return[k,csv(txt).slice(1)]}));
     res.forEach(([k,v])=>st[k]=v);$("banner").hidden=true;
     $("stamp").textContent="Planilha lida às "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});render();
   }catch(e){showErr("Não consegui ler a planilha. Confira se ela está publicada na web (Arquivo → Compartilhar → Publicar na Web) e clique em Atualizar.");$("stamp").textContent="Sem leitura"}
